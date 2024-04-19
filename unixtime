@@ -1,0 +1,6 @@
+#!/bin/sh
+
+UNIXTIME="$@"
+date -Iseconds --date=@$UNIXTIME -u
+date -Iseconds --date=@$UNIXTIME
+

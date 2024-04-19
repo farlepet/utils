@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# USAGE: hexdiff <file11> <file2>
+
+nvim -d <(xxd $1) <(xxd $2)
+

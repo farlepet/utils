@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# Map tablet to left-most screen, with some scaling
+xinput set-prop 14 156 0.6, 0.000000, 0.000000, 0.000000, 1.2, 0.179688, 0.000000, 0.000000, 1.000000

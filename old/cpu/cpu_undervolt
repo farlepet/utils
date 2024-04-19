@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# Note: Documentation here: https://forum.level1techs.com/t/overclock-your-ryzen-cpu-from-linux/126025
+
+modprobe msr cpuid
+
+# P0: 3.40GHz 1075.00mV
+zenstates -p 0 -v 4C -f 88 -d 8
+
+# P1: 2.80GHz 875.00mV
+zenstates -p 1 -v 6C -f 8C -d A
+
+# P2: 1.55GHz 800.00mV
+zenstates -p 2 -v 78 -f 7C -d 10
+

@@ -1,0 +1,3 @@
+#!/bin/sh
+
+lsiutil -p 1 -r

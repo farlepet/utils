@@ -1,0 +1,13 @@
+#!/bin/sh
+
+modprobe msr cpuid
+
+# P0: 2.80GHz 906.25mV
+zenstates -p 0 -v 67 -f 8C -d A
+
+# P1: 2.80GHz 906.25mV
+zenstates -p 1 -v 67 -f 8C -d A
+
+# P2: 1.55GHz 825.00mV
+zenstates -p 2 -v 74 -f 7C -d 10
+

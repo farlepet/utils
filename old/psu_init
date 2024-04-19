@@ -1,0 +1,11 @@
+#!/bin/sh
+
+PSU=$1
+
+rigol $1 1 12
+rigol $1 2 12
+rigol $1 3 5
+
+rigol $1 1 ON
+rigol $1 2 ON
+rigol $1 3 ON

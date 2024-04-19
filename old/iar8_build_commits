@@ -1,0 +1,56 @@
+#!/bin/sh
+
+if [[ $# -ne 4 ]]; then
+    echo "USAGE: iar8_build_commits <platform> <logdir> <start commit> <end commit>"
+    exit 1
+fi
+
+PLATFORM=$1
+LOGDIR=$2
+START=$3
+END=$4
+
+TARGET=engineering
+
+BUILDLOG=$LOGDIR/builds.log
+
+if [[ ! -d $LOGDIR ]]; then
+    echo "Log directory '$LOGDIR' does not exist!"
+    exit 1
+fi
+
+for COMMIT in $(git log --reverse --format=format:%H $START..$END); do
+    DATE=$(TZ=UTC git log -1 --format=%cd --date=format-local:'%Y-%m-%dT%H:%M:%SZ' $COMMIT)
+    if [[ -f $LOGDIR/$DATE-$COMMIT.bin ]]; then
+        # Do not rebuild
+        echo "$COMMIT Already built, skipping." | ts | tee -a $BUILDLOG
+        continue
+    fi
+    if [[ -f $LOGDIR/$DATE-$COMMIT.fail ]]; then
+        # Do not rebuild
+        echo "$COMMIT Already failed, skipping." | ts | tee -a $BUILDLOG
+        continue
+    fi
+    
+    git checkout $COMMIT
+    if [ $? -ne 0 ]; then
+        echo "$COMMIT !!Failed to checkout!!" | ts | tee -a $BUILDLOG
+        continue
+    fi
+    git submodule update
+    if [ $? -ne 0 ]; then
+        echo "$COMMIT !!Failed to update submodules!!" | ts | tee -a $BUILDLOG
+        continue
+    fi
+
+    iar8_build ewp/$PLATFORM.ewp $TARGET > $LOGDIR/$DATE-$COMMIT.build
+    if [ $? -ne 0 ]; then
+        echo "$COMMIT !!Failed to build!!" | ts | tee -a $BUILDLOG
+        echo "FAILURE" > $LOGDIR/$DATE-$COMMIT.fail
+    else
+        echo "$COMMIT Done" | ts | tee -a $BUILDLOG
+        cp build/$PLATFORM/$TARGET/list/$PLATFORM.map $LOGDIR/$DATE-$COMMIT.map
+        cp build/$PLATFORM/$TARGET/exe/*$(git rev-parse --short=7 HEAD).bin $LOGDIR/$DATE-$COMMIT.bin
+    fi
+done
+

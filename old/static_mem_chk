@@ -1,0 +1,48 @@
+#!/bin/sh
+
+# USAGE: static_mem_chk <platform> [<IAR project directory>]
+
+if [[ ($# -lt 1 || $# -gt 2) ]]; then
+    echo "Usage: static_mem_chk <platform> [<IAR project directory>]]"
+    exit 1
+fi
+
+PLATFORM=$1
+IPATH=.
+
+if [[ $# -gt 1 ]]; then
+    IPATH=$2
+fi
+
+# Proprietary platform checks removed
+RW_SIZE=65408
+RO_SIZE=233472
+
+DIR="$IPATH/build/$PLATFORM/engineering/list"
+MAP="$DIR/$PLATFORM.map"
+
+if ! [[ -f $MAP ]]; then
+    echo "Map file '$MAP' not found"
+    exit 1
+fi
+
+SED_EXPR="s/ *\([0-9]* [0-9]*\).*/\1/p"
+
+RO_CODE=`tail $MAP | grep "readonly  code" | tr -d "'" | sed -n "$SED_EXPR" | tr -d " "`
+RW_CODE=`tail $MAP | grep "readwrite code" | tr -d "'" | sed -n "$SED_EXPR" | tr -d " "`
+RO_DATA=`tail $MAP | grep "readonly  data" | tr -d "'" | sed -n "$SED_EXPR" | tr -d " "`
+RW_DATA=`tail $MAP | grep "readwrite data" | tr -d "'" | sed -n "$SED_EXPR" | tr -d " "`
+
+RO_ALL=`echo "$RO_CODE + $RO_DATA" | bc`
+RW_ALL=`echo "$RW_CODE + $RW_DATA" | bc`
+
+RO_PCT=`echo "($RO_ALL * 100) / $RO_SIZE" | bc -l`
+RW_PCT=`echo "($RW_ALL * 100) / $RW_SIZE" | bc -l`
+
+RO_FREE=`echo "$RO_SIZE - $RO_ALL" | bc`
+RW_FREE=`echo "$RW_SIZE - $RW_ALL" | bc`
+
+echo   "      CODE     DATA    TOTAL    AVAIL |   FREE    PCT"
+printf "RO: %6d + %6d = %6d / %6d | %6d %.2f%%\n" $RO_CODE $RO_DATA $RO_ALL $RO_SIZE $RO_FREE $RO_PCT
+printf "RW: %6d + %6d = %6d / %6d | %6d %.2f%%\n" $RW_CODE $RW_DATA $RW_ALL $RW_SIZE $RW_FREE $RW_PCT
+

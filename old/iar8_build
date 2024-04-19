@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# USAGE: iar8_build <ewp file> [<target>]
+
+IAR="/mnt/data/wine/drive_c/Program Files (x86)/IAR Systems/Embedded Workbench 8.2"
+IARBUILD="$IAR/common/bin/IarBuild.exe"
+
+EWP=$1
+
+TARGET=engineering
+if [[ $# -ge 2 ]]; then
+    TARGET=$2
+fi
+
+"$IARBUILD" "$EWP" -make $TARGET -parallel $(m $(nproc) + 2)
+

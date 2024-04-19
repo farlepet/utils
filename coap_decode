@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# Decodes a single CoAP payload in the form of a hex string
+
+HEX=$1
+
+echo $HEX | xxd -r -p | od -Ax -tx1 -v | text2pcap -u 1234,5683 - - | tshark -r - -V -O coap
+

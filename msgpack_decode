@@ -1,0 +1,25 @@
+#!/bin/sh
+
+# USAGE: ... | msgpack_decode
+
+TMPFILE=$(mktemp)
+M2JCMD="msgpack2json -cbd"
+
+cat - | base64 -d > $TMPFILE
+
+# This is not very efficient, but it doen't need to be for testing
+
+if lz4 -dqq $TMPFILE > /dev/null; then
+        if lz4 -dc $TMPFILE | lz4 -dqq > /dev/null; then
+                MSGPACK=$(lz4 -dc $TMPFILE | lz4 -dc | $M2JCMD)
+        else
+                MSGPACK=$(lz4 -dc $TMPFILE | $M2JCMD)
+        fi
+else
+        MSGPACK=$($M2JCMD -i $TMPFILE)
+fi
+
+rm $TMPFILE
+
+echo $MSGPACK | tr -d [:space:]
+

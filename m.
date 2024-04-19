@@ -1,0 +1,5 @@
+#!/bin/sh
+
+MATH="$@"
+echo "$MATH" | bc -l
+

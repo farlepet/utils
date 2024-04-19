@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# V = 1550mV - x*6.25mV -> x = (1550mV - V)/6.25mV
+
+modprobe msr cpuid
+
+# P0: 2.00GHz 775.00mV
+zenstates -p 0 -v 7C -f 82 -d D
+
+# P1: 1.60GHz 750.00mV
+zenstates -p 1 -v 80 -f 70 -d E
+
+# P2: 1.20GHz 700.00mV
+zenstates -p 2 -v 88 -f 60 -d 10
+

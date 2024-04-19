@@ -1,0 +1,5 @@
+#!/bin/sh
+
+HEX=$1
+printf "%d" $((16#$HEX))
+

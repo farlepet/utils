@@ -1,0 +1,5 @@
+#!/bin/sh
+
+BASE64=$1
+echo $BASE64 | base64 -d | msgpack2json -c
+

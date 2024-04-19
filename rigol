@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# USAGE: rigol <Host/TTY> <channel> <ON/OFF/Voltage>
+if [[ ($# -ne 3) ]]; then
+    echo "Usage: rigol <host/tty> <channel> <ON/OFF/voltage>"
+    exit 1
+fi
+
+PSU=$1
+CHAN=$2
+CMD=$3
+
+if   [[ ${CMD^^} == "ON" ]]; then
+    SCPI=":OUTP CH${CHAN},ON"
+elif [[ ${CMD^^} == "OFF" ]]; then
+    SCPI=":OUTP CH${CHAN},OFF"
+elif [[ ${CMD^^} == "TOGGLE" ]]; then
+    SCPI=":OUTP CH${CHAN},TOGGLE"
+else
+    SCPI=":SOUR${CHAN}:VOLT ${CMD}"
+fi
+
+
+if   [[ ${PSU} =~ "/dev/".* ]]; then
+    stty -F $PSU 9600
+    echo $SCPI > $PSU
+else
+    lxi scpi -a $PSU "${SCPI}"
+fi
+
